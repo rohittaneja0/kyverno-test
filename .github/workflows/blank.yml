@@ -25,14 +25,18 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: kyverno-cli
-  # You may pin to the exact commit or the version.
-  # uses: gbaeke/kyverno-cli@0cdfe48b8ccc0241a97aa23ea9a7559b1e318d03
-        uses: gbaeke/kyverno-cli@v1.0.0
+      - name: kyverno-cli-installer
+        # You may pin to the exact commit or the version.
+        # uses: kyverno/action-install-cli@fcee92fca5c883169ef9927acf543e0b5fc58289
+        uses: kyverno/action-install-cli@v0.2.0
         with:
-          # kyverno command to run
-          command: kyverno apply policy.yaml --resource deployment.yaml
+          # Kyverno CLI release version to be installed
+          release: v1.10.3
+
+      - name: Run kyverno test
+        run: |
+          kyverno apply policy.yaml --resource=deployment.yaml
+          
           
 
       # Runs a set of commands using the runners shel

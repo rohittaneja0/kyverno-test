@@ -1,0 +1,111 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-annotations
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: check-required-annotations
+      match:
+        resources:
+          kinds:
+            - Deployment
+      validate:
+        message: "Deployment is missing required annotations: 'owner' and 'environment'."
+        pattern:
+          metadata:
+            annotations:
+              owner: "?*"
+              environment: "?*"
+# ---
+# apiVersion: kyverno.io/v1
+# kind: ClusterPolicy
+# metadata:
+#   name: require-annotations
+# spec:
+#   validationFailureAction: Enforce
+#   rules:
+#     - name: check-required-annotations
+#       match:
+#         resources:
+#           kinds:
+#             - Deployment
+#       validate:
+#         message: "Deployment is missing required annotations: 'owner' and 'environment'."
+#         deny:
+#           conditions:
+#             all:
+#               - key: "{{ request.object.metadata.annotations.keys(@)[?contains(@, 'bsn')] }}"
+#                 operator: AnyNotIn
+#                 value:
+#                   - bsn
+#                   - bsn-0
+#                   - bsn-1
+#                   - bsn-2
+#                   - bsn-3
+# ---
+# apiVersion: kyverno.io/v1
+# kind: ClusterPolicy
+# metadata:
+#   name: require-annotations-cel
+# spec:
+#   validationFailureAction: Enforce
+#   rules:
+#     - name: check-required-annotations
+#       match:
+#         resources:
+#           kinds:
+#             - Deployment
+#       validate:
+#         message: "Deployment is missing required annotations: 'owner' and 'environment'."
+#         cel:
+#           expressions:
+#           - message: "Missing annotations"
+#             expression: "has(object.metadata.annotations) && 'bsn' in object.metadata.annotations"
+# ---
+
+# apiVersion: kyverno.io/v1
+# kind: ClusterPolicy
+# metadata:
+#   name: require-annotations-cel
+# spec:
+#   validationFailureAction: Enforce
+#   rules:
+#     - name: check-required-annotations
+#       match:
+#         resources:
+#           kinds:
+#             - Deployment
+#       validate:
+#         message: "Deployment is missing required annotations: 'owner' and 'environment'."
+#         foreach:
+#         - list: "request.object.metadata.annotations"
+#           deny:
+#             conditions:
+#               any:
+#               - key: "{{ contains(element, 'ice/bsn') }}"
+#                 operator: Equals
+#                 value: true
+
+# ---
+# apiVersion: kyverno.io/v1
+# kind: ClusterPolicy
+# metadata:
+#   name: require-annotations-cel
+# spec:
+#   admission: true
+#   background: true
+#   rules:
+#     - match:
+#         resources:
+#           kinds:
+#             - Deployment
+#       name: check-required-annotations
+#       skipBackgroundRequests: true
+#       validate:
+#         cel:
+#           expressions:
+#             - expression: object.metadata.?annotations.orValue([]).exists(annotation, annotation.startsWith("ice/bsn") && object.metadata.annotations[annotation] != "")
+#               message: missing annotations
+#         message: 'Deployment is missing required annotations'
+#   validationFailureAction: Enforce

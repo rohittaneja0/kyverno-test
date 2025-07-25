@@ -3,9 +3,9 @@ kind: Deployment
 metadata:
   namespace: test2
   name: test
-  annotations:
-    owner: rohit
-    environment: dev
+  # annotations:
+  #   owner: rohit
+  #   environment: de
 spec:
   selector:
     matchLabels:
